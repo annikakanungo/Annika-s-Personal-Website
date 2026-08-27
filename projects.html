@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Annika Kanungo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a class="nav-logo" href="index.html">Annika<span class="dot">.</span>Kanungo</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="skills.html">Skills</a>
+      <a href="projects.html" class="active">Projects</a>
+      <a href="articles.html">Articles</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <span class="eyebrow">Selected Work</span>
+    <h1>The Files</h1>
+    <p>Four projects, filed under whichever side of the docket they came from.</p>
+  </div>
+
+  <section class="projects">
+    <div class="wrap">
+      <div class="grid">
+        <div class="card code-file reveal" style="--d:0s">
+          <span class="tag">rights.js</span>
+          <h3>Know Your Rights — Student FAQ Bot</h3>
+          <p>A small JavaScript chatbot answering common questions about students' digital privacy rights at school.</p>
+        </div>
+        <div class="card case-file reveal" style="--d:0.1s">
+          <span class="tag">State v. Doe</span>
+          <h3>Mock Trial Closing Argument</h3>
+          <p>My closing argument as defense counsel in this year's regional mock trial competition.</p>
+        </div>
+        <div class="card code-file reveal" style="--d:0.2s">
+          <span class="tag">bot_v2.py</span>
+          <h3>Line-Follower Robot, Version 2</h3>
+          <p>Rebuilt our robotics club's line-following bot with better sensor calibration and a faster turn algorithm.</p>
+        </div>
+        <div class="card case-file reveal" style="--d:0.3s">
+          <span class="tag">Case Study</span>
+          <h3>AI &amp; Copyright: Who Owns the Output?</h3>
+          <p>A debate-club research presentation on how courts are handling authorship claims over AI-generated work.</p>
+        </div>
+        <div class="card code-file reveal" style="--d:0.4s">
+          <span class="tag">Swift App</span>
+          <h3>Byte Sized</h3>
+          <p>A Swift app that breaks coding concepts into bite-sized daily lessons — built after finishing CS50x, for anyone starting from zero.</p>
+        </div>
+        <div class="card code-file reveal" style="--d:0.5s">
+          <span class="tag">Scratch Project</span>
+          <h3>Curios T</h3>
+          <p>A Scratch-built trivia game that serves up a new random "did you know?" fact each round, made for a younger audience.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <span class="eyebrow reveal">Get In Touch</span>
+      <h2 class="reveal" style="--d:0.1s">$ file --a-motion-to-connect</h2>
+      <form class="contact-form reveal" style="--d:0.2s" action="mailto:annika.kanungo@example.edu" method="post" enctype="text/plain">
+        <div class="form-row">
+          <label><span class="prompt">$</span>name --input</label>
+          <input type="text" name="name" placeholder="Your name" required>
+        </div>
+        <div class="form-row">
+          <label><span class="prompt">$</span>email --input</label>
+          <input type="email" name="email" placeholder="your.email@example.com" required>
+        </div>
+        <div class="form-row">
+          <label><span class="prompt">$</span>message --input</label>
+          <textarea name="message" placeholder="What's on your mind?" required></textarea>
+        </div>
+        <button type="submit" class="form-submit">$ send --message</button>
+        <p class="form-note">// opens your email client to deliver this message</p>
+      </form>
+      <div class="social reveal" style="--d:0.3s">
+        <a href="#">GitHub</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Mock Trial Portfolio</a>
+      </div>
+      <footer>&copy; 2026 Annika Kanungo — Example site for teaching purposes</footer>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
