@@ -273,3 +273,8 @@ footer{ margin-top: 2.6rem; font-family: var(--mono); font-size: 0.66rem; color:
 .admin-error{ font-family: var(--mono); font-size: 0.72rem; color: #E08585; margin-top: 0.7rem; }
 .article-card.is-new{ border-color: var(--brass); }
 .pill.new{ background: rgba(201,162,39,0.18); color: #8A6D14; }
+
+.site-footer{
+  text-align:center; font-family: var(--mono); font-size: 0.68rem; color: #6B7280;
+  padding: 2.4rem var(--gap);
+}
