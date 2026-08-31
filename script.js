@@ -124,13 +124,18 @@ if (articleList && typeof db !== 'undefined'){
   const logoutBtn = document.getElementById('admin-logout');
 
   // Reflects the real, server-verified login state — not a
-  // client-side flag like the old demo used.
+  // client-side flag like the old demo used. Also toggles a
+  // body class so edit/delete buttons only show while logged in.
+  let editingId = null;
   auth.onAuthStateChanged(user => {
     if (user){
       loginPanel.hidden = true;
       formPanel.hidden = false;
+      document.body.classList.add('is-admin');
     } else {
       formPanel.hidden = true;
+      document.body.classList.remove('is-admin');
+      editingId = null;
     }
   });
 
@@ -163,6 +168,16 @@ if (articleList && typeof db !== 'undefined'){
     formPanel.hidden = true;
   });
 
+  function clearArticleForm(){
+    document.getElementById('new-title').value = '';
+    document.getElementById('new-excerpt').value = '';
+    document.getElementById('new-date').value = '';
+    document.getElementById('new-read').value = '';
+    document.getElementById('new-tag').value = 'code';
+    editingId = null;
+    publishBtn.textContent = '$ publish --article';
+  }
+
   publishBtn.addEventListener('click', () => {
     const title = document.getElementById('new-title').value.trim();
     const excerpt = document.getElementById('new-excerpt').value.trim();
@@ -171,19 +186,52 @@ if (articleList && typeof db !== 'undefined'){
     const read = document.getElementById('new-read').value.trim() || '—';
     if (!title || !excerpt) return;
 
-    db.collection('articles').add({
-      title, excerpt, tag, date, read,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      document.getElementById('new-title').value = '';
-      document.getElementById('new-excerpt').value = '';
-      document.getElementById('new-date').value = '';
-      document.getElementById('new-read').value = '';
+    const data = { title, excerpt, tag, date, read };
+
+    const request = editingId
+      ? db.collection('articles').doc(editingId).update(data)
+      : db.collection('articles').add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+    request.then(() => {
+      clearArticleForm();
       loadArticles();
     }).catch(err => {
       // Firestore rejects this if the logged-in user's UID doesn't
       // match the one in firestore.rules — the real enforcement.
-      alert('Could not publish: ' + err.message);
+      alert('Could not save: ' + err.message);
     });
+  });
+
+  // Edit / Delete — event delegation so it works for every card,
+  // including ones added after the page first loads.
+  articleList.addEventListener('click', (e) => {
+    const card = e.target.closest('.article-card');
+    if (!card) return;
+    const id = card.dataset.id;
+
+    if (e.target.classList.contains('delete-btn')){
+      const title = card.querySelector('h3').textContent;
+      if (confirm(`Delete "${title}"? This can't be undone.`)){
+        db.collection('articles').doc(id).delete()
+          .then(loadArticles)
+          .catch(err => alert('Could not delete: ' + err.message));
+      }
+    }
+
+    if (e.target.classList.contains('edit-btn')){
+      db.collection('articles').doc(id).get().then(doc => {
+        const a = doc.data();
+        document.getElementById('new-title').value = a.title || '';
+        document.getElementById('new-excerpt').value = a.excerpt || '';
+        document.getElementById('new-tag').value = a.tag || 'code';
+        document.getElementById('new-date').value = a.date || '';
+        document.getElementById('new-read').value = a.read || '';
+        editingId = id;
+        publishBtn.textContent = '$ update --article';
+        loginPanel.hidden = true;
+        formPanel.hidden = false;
+        formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
   });
 }
