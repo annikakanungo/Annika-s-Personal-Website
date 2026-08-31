@@ -13,6 +13,29 @@ const observer = new IntersectionObserver((entries) => {
 revealEls.forEach(el => observer.observe(el));
 
 // =========================================================
+// CURSOR TILT — a small Watermelon-UI-style micro-interaction:
+// cards tilt toward the cursor instead of just lifting flatly.
+// Reused for both project cards (static) and article cards
+// (built dynamically, so this gets called per-card as each one
+// is created rather than queried once on page load).
+// =========================================================
+function applyTilt(card){
+  card.style.transformStyle = 'preserve-3d';
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -6;
+    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 6;
+    card.style.transform = `perspective(700px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+}
+document.querySelectorAll('.card').forEach(applyTilt);
+
+// =========================================================
 // CONTACT FORM — built with JS instead of a raw form-mailto
 // action. Form-level mailto (action="mailto:..." enctype=
 // "text/plain") is unreliable across browsers, especially on
@@ -70,6 +93,7 @@ if (articleList && typeof db !== 'undefined'){
     pill.classList.add(article.tag);
     node.querySelector('.date').textContent = article.date || '';
     node.querySelector('.read').textContent = article.read || '';
+    applyTilt(card);
     return node;
   }
 
@@ -102,11 +126,23 @@ if (articleList && typeof db !== 'undefined'){
     cards.forEach(card => { card.hidden = !(filter === 'all' || card.dataset.tag === filter); });
   }
 
+  // Sliding pill indicator behind the active filter button.
+  const filterPill = document.getElementById('filter-pill');
+  function movePill(){
+    const activeBtn = document.querySelector('.filter-bar .filter-btn.active');
+    if (!filterPill || !activeBtn) return;
+    filterPill.style.width = activeBtn.offsetWidth + 'px';
+    filterPill.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+      }
+  window.addEventListener('resize', movePill);
+  movePill();
+
   document.querySelectorAll('.filter-bar .filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       attachFilter();
+      movePill();
     });
   });
 
