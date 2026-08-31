@@ -107,6 +107,7 @@ h1,h2,h3{ margin:0; }
   .hero-panels{ grid-template-columns: 1fr; }
   .seam{ display:none; }
 }
+
 /* ---------- ABOUT ---------- */
 .about{ background: var(--parchment); }
 .about .wrap{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--gap); align-items:center; }
@@ -152,8 +153,8 @@ h1,h2,h3{ margin:0; }
 .projects .eyebrow{ text-align:center; }
 .projects h2{ font-family: var(--serif); text-align:center; font-size: clamp(1.7rem, 3.6vw, 2.3rem); margin-bottom: 2.6rem; }
 .grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
-.card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding: 1.7rem; position:relative; transition: transform .3s ease, box-shadow .3s ease; }
-.card:hover{ transform: translateY(-5px); box-shadow: 0 14px 30px rgba(36,33,27,0.1); }
+.card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding: 1.7rem; position:relative; transition: transform .15s ease, box-shadow .3s ease; }
+.card:hover{ box-shadow: 0 14px 30px rgba(36,33,27,0.1); }
 .card .tag{ font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px; display:inline-block; margin-bottom: 0.9rem; }
 .card.code-file .tag{ background: rgba(111,207,151,0.15); color: #2F7A52; }
 .card.case-file .tag{ background: rgba(201,162,39,0.15); color: #8A6D14; }
@@ -231,24 +232,31 @@ footer{ margin-top: 2.6rem; font-family: var(--mono); font-size: 0.66rem; color:
    a good lightweight interactivity example for the class.
    ========================================================= */
 .articles{ background: var(--parchment); }
-.filter-bar{ display:flex; gap: 0.7rem; justify-content:center; flex-wrap: wrap; margin-bottom: 2.6rem; }
+.filter-bar{ position: relative; display:flex; gap: 0.7rem; justify-content:center; flex-wrap: wrap; margin-bottom: 2.6rem; }
 .filter-btn{
+  position: relative; z-index: 1;
   font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
   background: #fff; border: 1px solid var(--line); color: var(--ink-soft);
   padding: 0.55rem 1.1rem; border-radius: 999px; cursor: pointer;
   transition: background .2s ease, color .2s ease, border-color .2s ease;
 }
 .filter-btn:hover{ border-color: var(--brass); color: var(--ink); }
-.filter-btn.active{ background: var(--code-bg); border-color: var(--code-bg); color: #fff; }
+.filter-btn.active{ background: transparent; border-color: transparent; color: #fff; }
+.filter-pill{
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--code-bg); border-radius: 999px;
+  transition: transform .4s cubic-bezier(.22,1,.36,1), width .4s cubic-bezier(.22,1,.36,1);
+  z-index: 0;
+}
 
 .article-list{ display:flex; flex-direction: column; gap: 1.1rem; }
 .article-card{
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
   padding: 1.7rem clamp(1.3rem, 3vw, 2.2rem);
-  display:grid; grid-template-columns: 64px 1fr; gap: 1.4rem; align-items: start;
-  transition: transform .3s ease, box-shadow .3s ease;
+     display:grid; grid-template-columns: 64px 1fr; gap: 1.4rem; align-items: start;
+  transition: transform .15s ease, box-shadow .3s ease;
 }
-.article-card:hover{ transform: translateY(-4px); box-shadow: 0 14px 30px rgba(36,33,27,0.1); }
+.article-card:hover{ box-shadow: 0 14px 30px rgba(36,33,27,0.1); }
 .article-num{ font-family: var(--serif); font-size: 1.8rem; font-style: italic; color: var(--line); line-height: 1; }
 .article-body h3{ font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
 .article-body p{ color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 0.9rem; }
@@ -295,4 +303,22 @@ body.is-admin .article-admin{ display:flex; }
 .site-footer{
   text-align:center; font-family: var(--mono); font-size: 0.68rem; color: #6B7280;
   padding: 2.4rem var(--gap);
+}
+
+/* =========================================================
+   SPRING BUTTON PRESS
+   TEACHING NOTE: the trick is two transitions, not one. The
+   base rule (slow, bouncy cubic-bezier with overshoot) governs
+   the release — springing back past 100% before settling. The
+   :active rule overrides with a fast linear transition just for
+   the press-down, so pressing feels instant but releasing feels
+   springy. Applied broadly so every button on the site (nav,
+   forms, filters, admin panel) gets the same tactile feel.
+   ========================================================= */
+button, .cta-btn, .form-submit{
+  transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
+}
+button:active, .cta-btn:active, .form-submit:active{
+  transform: scale(0.94);
+  transition: transform 0.1s ease;
 }
