@@ -8,6 +8,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+
+<!-- Firebase: real backend auth + database, replacing the old
+     client-side-only demo. See firebase-config.js for setup. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 </head>
 <body>
 
@@ -33,13 +40,17 @@
       <div class="admin-area">
         <button id="admin-toggle" class="filter-btn admin-btn" type="button">Admin Login</button>
         <div id="admin-login" class="admin-panel" hidden>
-          <p class="admin-note">// demo login only — a real site would check this on a server, not in the browser</p>
+          <p class="admin-note">// real login — checked by Firebase's servers, not this page's code</p>
+          <div class="form-row">
+            <label>Email</label>
+            <input type="email" id="admin-email" placeholder="you@example.com">
+          </div>
           <div class="form-row">
             <label>Password</label>
-            <input type="password" id="admin-password" placeholder="Enter admin password">
+            <input type="password" id="admin-password" placeholder="Password">
           </div>
-          <button id="admin-submit" class="form-submit" type="button">Unlock</button>
-          <p id="admin-error" class="admin-error" hidden>Incorrect password — try again.</p>
+          <button id="admin-submit" class="form-submit" type="button">Log In</button>
+          <p id="admin-error" class="admin-error" hidden>Incorrect email or password.</p>
         </div>
         <div id="admin-form-panel" class="admin-panel" hidden>
           <h3>$ post --new-article</h3>
@@ -55,6 +66,7 @@
           <div class="form-row"><label>Date</label><input type="text" id="new-date" placeholder="e.g. Sep 2026"></div>
           <div class="form-row"><label>Read time</label><input type="text" id="new-read" placeholder="e.g. 5 min read"></div>
           <button id="publish-article" class="form-submit" type="button">$ publish --article</button>
+          <button id="admin-logout" class="filter-btn" type="button" style="margin-top:0.8rem;">Log Out</button>
         </div>
       </div>
 
