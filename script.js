@@ -39,53 +39,60 @@ if (contactForm){
 }
 
 // =========================================================
-// ARTICLES PAGE — rendering, filtering, and the admin demo.
+// ARTICLES PAGE — rendering, filtering, and REAL admin auth.
 // Everything below is guarded on #article-list existing, so
 // this file stays safe to include on every page.
+//
+// TEACHING NOTE: articles now live in Firestore (a real shared
+// database), not localStorage. Anyone can read them (public
+// blog). Only the account whose UID is hardcoded in
+// firestore.rules can write — that check happens on Google's
+// servers, so a student cannot post even by opening dev tools
+// and calling these functions directly, because Firestore will
+// reject the write without a matching authenticated UID.
 // =========================================================
 const articleList = document.getElementById('article-list');
-if (articleList){
-
-  const seedArticles = [];
-
-  const STORAGE_KEY = 'annika-articles-demo';
-  const getPosted = () => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch(e){ return []; }
-  };
-  const savePosted = (arr) => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+if (articleList && typeof db !== 'undefined'){
 
   const template = document.getElementById('article-template');
-  const tagLabel = { code:'Code', case:'Case', both:'Both', new:'New' };
+  const tagLabel = { code:'Code', case:'Case', both:'Both' };
 
-  function buildCard(article, isNew){
+  function buildCard(id, article){
     const node = template.content.cloneNode(true);
     const card = node.querySelector('.article-card');
     card.dataset.tag = article.tag;
-    if (isNew) card.classList.add('is-new');
-    node.querySelector('.article-num').textContent = 'No. ' + article.num;
+    card.dataset.id = id;
+    node.querySelector('.article-num').textContent = article.num ? 'No. ' + article.num : '';
     node.querySelector('h3').textContent = article.title;
     node.querySelector('p').textContent = article.excerpt;
     const pill = node.querySelector('.pill');
-    pill.textContent = isNew ? 'New' : tagLabel[article.tag];
-    pill.classList.add(isNew ? 'new' : article.tag);
-    node.querySelector('.date').textContent = article.date;
-    node.querySelector('.read').textContent = article.read;
+    pill.textContent = tagLabel[article.tag] || article.tag;
+    pill.classList.add(article.tag);
+    node.querySelector('.date').textContent = article.date || '';
+    node.querySelector('.read').textContent = article.read || '';
     return node;
   }
 
-  function renderArticles(){
+  function renderArticles(docs){
     articleList.innerHTML = '';
-    const posted = getPosted();
-    posted.forEach(a => articleList.appendChild(buildCard(a, true)));
-    seedArticles.forEach(a => articleList.appendChild(buildCard(a, false)));
-    if (posted.length === 0 && seedArticles.length === 0){
+    if (docs.length === 0){
       const empty = document.createElement('p');
       empty.className = 'empty-state';
       empty.textContent = 'No articles filed yet — check back soon.';
       articleList.appendChild(empty);
+    } else {
+      docs.forEach(doc => articleList.appendChild(buildCard(doc.id, doc.data())));
     }
     attachFilter();
+  }
+
+  function loadArticles(){
+    db.collection('articles').orderBy('createdAt', 'desc').get()
+      .then(snapshot => renderArticles(snapshot.docs))
+      .catch(err => {
+        console.error('Could not load articles:', err);
+        articleList.innerHTML = '<p class="empty-state">Could not load articles right now.</p>';
+      });
   }
 
   function attachFilter(){
@@ -103,24 +110,36 @@ if (articleList){
     });
   });
 
-  renderArticles();
+  loadArticles();
 
-  // ---- Admin demo (client-side only — see note in the HTML) ----
-  const ADMIN_PASSWORD = 'annika-admin'; // demo only, visible in page source on purpose
+  // ---- REAL admin login (Firebase Authentication) ----
   const toggleBtn = document.getElementById('admin-toggle');
   const loginPanel = document.getElementById('admin-login');
   const formPanel = document.getElementById('admin-form-panel');
+  const emailInput = document.getElementById('admin-email');
   const passwordInput = document.getElementById('admin-password');
   const submitBtn = document.getElementById('admin-submit');
   const errorMsg = document.getElementById('admin-error');
   const publishBtn = document.getElementById('publish-article');
+  const logoutBtn = document.getElementById('admin-logout');
+
+  // Reflects the real, server-verified login state — not a
+  // client-side flag like the old demo used.
+  auth.onAuthStateChanged(user => {
+    if (user){
+      loginPanel.hidden = true;
+      formPanel.hidden = false;
+    } else {
+      formPanel.hidden = true;
+    }
+  });
 
   toggleBtn.addEventListener('click', () => {
     const isOpen = !loginPanel.hidden || !formPanel.hidden;
     if (isOpen){
       loginPanel.hidden = true;
       formPanel.hidden = true;
-    } else if (formPanel.dataset.unlocked === 'true'){
+    } else if (auth.currentUser){
       formPanel.hidden = false;
     } else {
       loginPanel.hidden = false;
@@ -128,15 +147,20 @@ if (articleList){
   });
 
   submitBtn.addEventListener('click', () => {
-    if (passwordInput.value === ADMIN_PASSWORD){
-      loginPanel.hidden = true;
-      formPanel.hidden = false;
-      formPanel.dataset.unlocked = 'true';
-      errorMsg.hidden = true;
-      passwordInput.value = '';
-    } else {
-      errorMsg.hidden = false;
-    }
+    errorMsg.hidden = true;
+    auth.signInWithEmailAndPassword(emailInput.value.trim(), passwordInput.value)
+      .then(() => {
+        passwordInput.value = '';
+      })
+      .catch((err) => {
+        errorMsg.textContent = err.code + ': ' + err.message;
+        errorMsg.hidden = false;
+      });
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    auth.signOut();
+    formPanel.hidden = true;
   });
 
   publishBtn.addEventListener('click', () => {
@@ -144,17 +168,22 @@ if (articleList){
     const excerpt = document.getElementById('new-excerpt').value.trim();
     const tag = document.getElementById('new-tag').value;
     const date = document.getElementById('new-date').value.trim() || 'Just now';
-    const read = document.getElementById('new-read').value.trim() || '\u2014';
+    const read = document.getElementById('new-read').value.trim() || '—';
     if (!title || !excerpt) return;
 
-    const posted = getPosted();
-    posted.unshift({ num: String(posted.length + seedArticles.length + 1).padStart(2,'0'), tag, title, excerpt, date, read });
-    savePosted(posted);
-    renderArticles();
-
-    document.getElementById('new-title').value = '';
-    document.getElementById('new-excerpt').value = '';
-    document.getElementById('new-date').value = '';
-    document.getElementById('new-read').value = '';
+    db.collection('articles').add({
+      title, excerpt, tag, date, read,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-excerpt').value = '';
+      document.getElementById('new-date').value = '';
+      document.getElementById('new-read').value = '';
+      loadArticles();
+    }).catch(err => {
+      // Firestore rejects this if the logged-in user's UID doesn't
+      // match the one in firestore.rules — the real enforcement.
+      alert('Could not publish: ' + err.message);
+    });
   });
 }
