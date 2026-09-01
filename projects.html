@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Applied before the stylesheet loads to avoid a flash of the
+  // wrong theme on reload.
+  (function(){
+    try {
+      if (localStorage.getItem('site-theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    } catch(e){}
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Projects — Annika Kanungo</title>
@@ -19,6 +30,8 @@
       <a href="projects.html" class="active">Projects</a>
       <a href="articles.html">Articles</a>
       <a href="index.html#contact">Contact</a>
+      <button id="cmdk-trigger" class="icon-btn" type="button" title="Search (/)">&#9906;</button>
+      <button id="theme-toggle" class="icon-btn" type="button" title="Toggle dark mode">&#9680;</button>
     </div>
   </nav>
 
@@ -47,17 +60,15 @@
           <h3>Byte-Sized</h3>
           <p>Online flashcards made quick.</p>
           <div class="demo-video">
-            <span class="play-icon">▶</span>
-             <iframe src="https://www.youtube.com/embed/3B-Ln_yn0V4" allowfullscreen></iframe> -->
+            <iframe src="https://www.youtube.com/embed/3B-Ln_yn0V4" allowfullscreen title="Byte-Sized demo"></iframe>
           </div>
         </div>
         <div class="card code-file reveal" style="--d:0.2s">
           <span class="tag">Scratch Project</span>
           <h3>Curios T</h3>
-          <p>A more enjoyable and quicker way to study!.</p>
+          <p>A Scratch-built trivia game that serves up a new random "did you know?" fact each round, made for a younger audience.</p>
           <div class="demo-video">
-            <span class="play-icon">▶</span>
-            <iframe src="https://www.youtube.com/embed/R8ntEojwF5o" allowfullscreen></iframe> -->
+            <iframe src="https://www.youtube.com/embed/R8ntEojwF5o" allowfullscreen title="Curios T demo"></iframe>
           </div>
         </div>
       </div>
@@ -65,6 +76,19 @@
   </section>
 
   <footer class="site-footer">&copy; 2026 Annika Kanungo</footer>
+
+  <div id="cmdk-overlay" class="cmdk-overlay" hidden>
+    <div class="cmdk-box">
+      <input type="text" id="cmdk-input" class="cmdk-input" placeholder="Jump to a page…" autocomplete="off">
+      <div class="cmdk-list">
+        <button class="cmdk-item" data-href="index.html">Home</button>
+        <button class="cmdk-item" data-href="skills.html">Skills</button>
+        <button class="cmdk-item" data-href="projects.html">Projects</button>
+        <button class="cmdk-item" data-href="articles.html">Articles</button>
+        <button class="cmdk-item" data-href="index.html#contact">Contact</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
