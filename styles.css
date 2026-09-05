@@ -353,10 +353,13 @@ button:active, .cta-btn:active, .form-submit:active{
 .icon-btn:hover{ border-color: var(--brass); color: var(--ink); }
 
 /* ---------- COMMAND PALETTE ---------- */
+
 .cmdk-overlay{
   position: fixed; inset: 0; background: rgba(20,20,20,0.5);
   display:flex; align-items:flex-start; justify-content:center;
   padding-top: 12vh; z-index: 100;
+}
+.cmdk-overlay[hidden]{ display: none !important; }
    }
 .cmdk-box{
   position: relative;
